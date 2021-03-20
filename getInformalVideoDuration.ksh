@@ -27,6 +27,7 @@ filetype='MTS'
 path='../../..'
 maxdepth=3
 LOGFILE=$path/durations.csv
+MAX_COLUMNS=10
 
 # Argument Parsing
 # This will be better for the end user instead of placing this file in the location of the folder and whatnot.
@@ -90,8 +91,21 @@ for outerFolder in $path/*; do
 
                 # Print without colors
                 # Need to print to csv with comma separate so it can be imported to MS Excel or Numbers for easy copy into Master DV Excel file.
-                printf "$satsangName,$format_timestamp\n" >> $LOGFILE
-                # printf "${red}FOLDER NAME:${end} $satsangName, ${grn}TOTAL DURATION${end} - $format_timestamp\n" >> $LOGFILE
+                # printf "$satsangName,$format_timestamp\n" >> $LOGFILE
+                printf "$satsangName" >> $LOGFILE
+
+                # Format file
+                # Sometimes, the satsangName or folder name can have multiple commas in their name,
+                # So irrespective of how many commas are in the satsangName, we want to shift the timestamp column
+                # to the same column for easy readability.
+                # Append empty columns up to MAX_COLUMNS. Then print format_timestamp.
+                CURR_COMMAS=$(echo $satsangName | tr -cd , | wc -c)
+                while [[ $CURR_COMMAS -le $MAX_COLUMNS ]]
+                do
+                    printf "," >> $LOGFILE
+                    CURR_COMMAS=$(( $CURR_COMMAS + 1 ))
+                done
+                printf "$format_timestamp\n" >> $LOGFILE
             fi
         done
     fi
